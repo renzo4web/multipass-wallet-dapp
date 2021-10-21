@@ -19,7 +19,7 @@ contract Wallet {
         bool sent;
     }
 
-    Transfer[] public transfers;
+    mapping(uint => Transfer) public transfers;
     uint nextId;
 
     constructor(address[] memory _approvers, uint256  _quorum){
@@ -30,13 +30,8 @@ contract Wallet {
         console.log("Contract Started");
     }
 
-    function getApprovers() external view returns (address[] memory){
+    function getApprovers() external  view returns (address[] memory){
         return approvers;
-    }
-
-
-    function getTransfers() external view returns (Transfer[] memory){
-        return transfers;
     }
 
     function createTransfer(
@@ -46,15 +41,16 @@ contract Wallet {
             
 
         Transfer memory newTransfer = Transfer({
-         id: transfers.length,
+        id: nextId,
          amount:_amount,
          to: _to,
          approvals:0,
          sent:false
         });
 
-        transfers.push(newTransfer);
+        transfers[nextId] = newTransfer;
 
+        nextId++;
 
         return newTransfer;
     }
