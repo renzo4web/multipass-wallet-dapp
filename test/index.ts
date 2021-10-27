@@ -120,11 +120,53 @@ describe("Wallet", function () {
 
     const balanceAfter = await provider.getBalance(rnd2.address);
 
-    console.log(
-      Number(balanceBefore),
-      Number(balanceAfter),
-      Number(utils.formatEther(balanceAfter)) -
-        Number(utils.formatEther(balanceBefore))
+    expect(
+      Number(utils.formatEther(balanceBefore)) +
+        Number(utils.formatEther("10")) ===
+        Number(utils.formatEther(balanceAfter))
+    ).to.equal(true);
+  });
+
+  it("should NOT approve transfer if sender is not part of approvals members", async () => {
+    const [_, rnd1, rnd2, rnd3, rnd4] = users;
+
+    expect(
+      walletContract.connect(rnd4).createTransfer(10, rnd2.address)
+    ).to.be.revertedWith("only approver allowed");
+  });
+
+  it("should not approve transfer if transfer is already sent", async () => {
+    const [_, rnd1, rnd2, rnd3] = users;
+
+    const transferTo2 = await walletContract
+      .connect(rnd1)
+      .createTransfer(10, rnd2.address);
+    transferTo2.wait();
+
+    await walletContract.connect(rnd1).approveTransfer(0);
+    await walletContract.connect(rnd3).approveTransfer(0);
+
+    const transfersTxn = await walletContract.getTransfers();
+
+    expect(transfersTxn[0].sent).to.equal(true);
+
+    expect(walletContract.connect(rnd2).approveTransfer(0)).to.be.revertedWith(
+      "Transfer already been sent"
+    );
+  });
+
+  it("should NOT approve transfer from a user that already approve the transfer before", async () => {
+    const [_, rnd1, rnd2, rnd3] = users;
+
+    const transferTo2 = await walletContract
+      .connect(rnd1)
+      .createTransfer(10, rnd2.address);
+    transferTo2.wait();
+
+    await walletContract.connect(rnd1).approveTransfer(0);
+
+    expect(walletContract.connect(rnd1).approveTransfer(0)).to.be.revertedWith(
+      "Cannot approve transfers twice"
     );
   });
 });
