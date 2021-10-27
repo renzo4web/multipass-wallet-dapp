@@ -1,13 +1,17 @@
+// Renzo Barrios
+// Octuber 2021
+//
 import { expect } from "chai";
-import { Contract, ContractFactory, BigNumber } from "ethers";
-import { ethers } from "hardhat";
+import { Contract, ContractFactory, BigNumber, utils } from "ethers";
+import { ethers, waffle } from "hardhat";
 
 describe("Wallet", function () {
   let walletContract: Contract;
   let users: any[];
-
+  let provider: any;
   this.beforeEach(async () => {
     users = await ethers.getSigners();
+    provider = waffle.provider;
     const [_, rnd1, rnd2, rnd3, unauthorized] = users;
 
     const WalletFactory: ContractFactory = await ethers.getContractFactory(
@@ -18,7 +22,7 @@ describe("Wallet", function () {
       [rnd1.address, rnd2.address, rnd3.address],
       2,
       {
-        value: ethers.utils.parseEther("100"),
+        value: ethers.utils.parseEther("0.1"),
       }
     );
     await walletContract.deployed();
@@ -77,5 +81,50 @@ describe("Wallet", function () {
     await expect(
       walletContract.connect(unauthorized).createTransfer(10, rnd2.address)
     ).to.be.revertedWith("only approver allowed");
+  });
+
+  it("should increment approvals", async () => {
+    const [_, rnd1, rnd2, rnd3] = users;
+
+    const transfer1 = await walletContract
+      .connect(rnd1)
+      .createTransfer(10, rnd2.address);
+    transfer1.wait();
+
+    await walletContract.connect(rnd1).approveTransfer(0);
+
+    const transfersTxn = await walletContract.getTransfers();
+    const approvals = transfersTxn[0].approvals.toNumber();
+    const isSent = transfersTxn[0].sent;
+    const balanceContract = await provider.getBalance(walletContract.address);
+
+    expect(approvals === 1).to.equal(true);
+    expect(isSent).to.equal(false);
+    expect(
+      ethers.utils.formatEther(balanceContract.toString()) === "0.1"
+    ).to.equal(true);
+  });
+
+  it("should send transfer if quorum reached", async () => {
+    const [_, rnd1, rnd2, rnd3] = users;
+
+    const balanceBefore = await provider.getBalance(rnd2.address);
+
+    const transferTo2 = await walletContract
+      .connect(rnd1)
+      .createTransfer(10, rnd2.address);
+    transferTo2.wait();
+
+    await walletContract.connect(rnd1).approveTransfer(0);
+    await walletContract.connect(rnd3).approveTransfer(0);
+
+    const balanceAfter = await provider.getBalance(rnd2.address);
+
+    console.log(
+      Number(balanceBefore),
+      Number(balanceAfter),
+      Number(utils.formatEther(balanceAfter)) -
+        Number(utils.formatEther(balanceBefore))
+    );
   });
 });
