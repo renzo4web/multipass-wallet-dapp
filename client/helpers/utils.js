@@ -1,3 +1,8 @@
+import {ethers} from "ethers";
+import  {abi} from "../abi/Wallet.json"
+const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+
+
 export const checkIfWalletIsConnected = async () => {
     try {
 
@@ -35,6 +40,24 @@ export const connectWallet = async (handleAccount) => {
 
     console.log("Connected", accounts[0]);
     handleAccount(accounts[0])
+}
+
+export const getContract = async()=>{
+    const {ethereum} = window;
+   try {
+
+       if(ethereum){
+           const provider = new ethers.providers.Web3Provider(ethereum);
+           const signer = provider.getSigner();
+           const walletContract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+
+
+           return walletContract
+       }
+
+   } catch (e) {
+       console.warn(e)
+   }
 }
 
 

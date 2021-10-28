@@ -9,7 +9,7 @@ async function main(): Promise<void> {
   const [_, rnd1, rnd2] = await ethers.getSigners();
   const walletContract: Contract = await WalletFactory.deploy(
     [rnd1.address, rnd2.address],
-    1
+    2
   );
 
   await walletContract.deployed();
