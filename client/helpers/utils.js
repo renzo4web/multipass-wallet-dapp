@@ -1,5 +1,5 @@
 import {ethers} from "ethers";
-import  {abi} from "../abi/Wallet.json"
+import  * as contractABI from "../abi/Wallet.json"
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 
@@ -49,7 +49,7 @@ export const getContract = async()=>{
        if(ethereum){
            const provider = new ethers.providers.Web3Provider(ethereum);
            const signer = provider.getSigner();
-           const walletContract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+               const walletContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI.abi, signer);
 
 
            return walletContract
