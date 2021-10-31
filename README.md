@@ -5,6 +5,8 @@
 
 ## Hardhat + Typescript + Alchemy
 
+Testnet : Rinkeby
+
 
 
 ### [Live Version](https://multipass-wallet-dapp.vercel.app/)
