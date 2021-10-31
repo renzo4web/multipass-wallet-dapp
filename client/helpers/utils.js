@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { formatError } from "./formatError";
 import { formatTransfers } from "./formatTransfers";
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = "0x0e10Dfb36389Cc5014c807eF2E4e5Aa9a0D1eb51";
 
 
 export const checkIfWalletIsConnected = async () => {

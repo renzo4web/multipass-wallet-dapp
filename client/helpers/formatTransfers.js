@@ -10,7 +10,7 @@ export const formatTransfers = (rawTransfers) => {
         let temp = {}
 
         for (const key in el) {
-            el[key] = (el[key]?._isBigNumber) ? el[key].toNumber() : el[key]
+            el[key] = el[key]?._isBigNumber ? el[key].toString() : el[key];
             temp[key] = el[key]
         }
 

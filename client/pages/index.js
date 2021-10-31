@@ -58,10 +58,9 @@ export default function Home() {
         }
 
         if (currentAccount !== "" && contract) {
-
           const rawList = await contract.getTransfers();
           const list = formatTransfers(rawList);
-          console.log("LIST", list);
+          console.log(list);
           setTransfers(list);
 
           const approvers = await contract.getApprovers();
@@ -69,13 +68,9 @@ export default function Home() {
 
           const quorum = await contract.quorum();
           setQuorom(Number(quorum));
-
         }
-
       } catch (e) {
-        toast.error(
-          formatError(e.data.message)
-        );
+        toast.error(formatError(e.data?.message));
         console.warn(e);
       }
     };
@@ -92,7 +87,10 @@ export default function Home() {
       if (isCurrent && sendTransfer) {
         console.log("Sending");
         try {
-          const transfer = await contract.createTransfer(newTransfer.amount, newTransfer.recipient);
+          const transfer = await contract.createTransfer(
+            newTransfer.amount,
+            newTransfer.recipient
+          );
           toast.info("Mining, wait please");
           await transfer.wait();
           const list = await contract.getTransfers();
@@ -100,9 +98,7 @@ export default function Home() {
           setTransfers(formatTransfers(list));
           toast.success("Transfer added to list");
         } catch (e) {
-          toast.error(
-            formatError(e.data.message)
-          );
+          toast.error(formatError(e.data?.message));
           console.warn(e);
         }
       }
