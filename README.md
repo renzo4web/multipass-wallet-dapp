@@ -1,5 +1,7 @@
 # Multipass Wallet
 
+***Allows multiple parties to agree on transactions before execution.***
+
 
 ## Hardhat + Typescript + Alchemy
 
